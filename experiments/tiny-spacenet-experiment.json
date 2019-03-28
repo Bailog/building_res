@@ -1,0 +1,314 @@
+{
+  "chipUri": "/opt/data/rv/chip/tiny-spacenet-experiment",
+  "id": "tiny-spacenet-experiment",
+  "trainUri": "/opt/data/rv/train/tiny-spacenet-experiment",
+  "task": {
+    "debug": true,
+    "predictPackageUri": "/opt/data/rv/bundle/tiny-spacenet-experiment/predict_package.zip",
+    "predictBatchSize": 10,
+    "taskType": "OBJECT_DETECTION",
+    "objectDetectionConfig": {
+      "chipSize": 300,
+      "classItems": [
+        {
+          "name": "building",
+          "color": "red",
+          "id": 1
+        }
+      ],
+      "predictOptions": {
+        "mergeThresh": 0.10000000149011612,
+        "scoreThresh": 0.5
+      },
+      "chipOptions": {
+        "windowMethod": "chip",
+        "negRatio": 1.0,
+        "ioaThresh": 0.800000011920929,
+        "labelBuffer": 0.0
+      }
+    }
+  },
+  "bundleUri": "/opt/data/rv/bundle/tiny-spacenet-experiment",
+  "rootUri": "/opt/data/rv",
+  "predictUri": "/opt/data/rv/predict/tiny-spacenet-experiment",
+  "dataset": {
+    "validationScenes": [
+      {
+        "groundTruthLabelSource": {
+          "objectDetectionGeojsonSource": {
+            "uri": "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/buildings_AOI_2_Vegas_img25.geojson"
+          },
+          "sourceType": "OBJECT_DETECTION_GEOJSON"
+        },
+        "rasterSource": {
+          "geotiffFiles": {
+            "uris": [
+              "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/RGB-PanSharpen_AOI_2_Vegas_img25.tif"
+            ]
+          },
+          "transformers": [
+            {
+              "transformerType": "STATS_TRANSFORMER",
+              "statsUri": "/opt/data/rv/analyze/tiny-spacenet-experiment/stats.json"
+            }
+          ],
+          "sourceType": "GEOTIFF_SOURCE"
+        },
+        "predictionLabelStore": {
+          "storeType": "OBJECT_DETECTION_GEOJSON",
+          "uri": "/opt/data/rv/predict/tiny-spacenet-experiment/val_scene.json"
+        },
+        "id": "val_scene"
+      }
+    ],
+    "trainScenes": [
+      {
+        "groundTruthLabelSource": {
+          "objectDetectionGeojsonSource": {
+            "uri": "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/buildings_AOI_2_Vegas_img205.geojson"
+          },
+          "sourceType": "OBJECT_DETECTION_GEOJSON"
+        },
+        "rasterSource": {
+          "geotiffFiles": {
+            "uris": [
+              "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/RGB-PanSharpen_AOI_2_Vegas_img205.tif"
+            ]
+          },
+          "transformers": [
+            {
+              "transformerType": "STATS_TRANSFORMER",
+              "statsUri": "/opt/data/rv/analyze/tiny-spacenet-experiment/stats.json"
+            }
+          ],
+          "sourceType": "GEOTIFF_SOURCE"
+        },
+        "id": "train_scene"
+      }
+    ]
+  },
+  "evalUri": "/opt/data/rv/eval/tiny-spacenet-experiment",
+  "analyzers": [
+    {
+      "analyzerType": "STATS_ANALYZER",
+      "statsUri": "/opt/data/rv/analyze/tiny-spacenet-experiment/stats.json"
+    }
+  ],
+  "analyzeUri": "/opt/data/rv/analyze/tiny-spacenet-experiment",
+  "evaluators": [
+    {
+      "evaluatorType": "OBJECT_DETECTION_EVALUATOR",
+      "classificationConfig": {
+        "outputUri": "/opt/data/rv/eval/tiny-spacenet-experiment/eval.json",
+        "classItems": [
+          {
+            "name": "building",
+            "color": "red",
+            "id": 1
+          }
+        ]
+      }
+    }
+  ],
+  "backend": {
+    "tfObjectDetectionConfig": {
+      "fineTuneCheckpointName": "tiny-spacenet-experiment",
+      "trainingDataUri": "/opt/data/rv/chip/tiny-spacenet-experiment",
+      "trainingOutputUri": "/opt/data/rv/train/tiny-spacenet-experiment",
+      "debug": true,
+      "doMonitoring": true,
+      "syncInterval": 600,
+      "modelMainPy": "/opt/tf-models/object_detection/model_main.py",
+      "exportPy": "/opt/tf-models/object_detection/export_inference_graph.py",
+      "replaceModel": false,
+      "tfodConfig": {
+        "evalConfig": {
+          "maxEvals": 10.0,
+          "numExamples": 8000.0
+        },
+        "trainInputReader": {
+          "tfRecordInputReader": {
+            "inputPath": [
+              "PATH_TO_BE_CONFIGURED/mscoco_train.record-?????-of-00100"
+            ]
+          },
+          "labelMapPath": "PATH_TO_BE_CONFIGURED/mscoco_label_map.pbtxt"
+        },
+        "trainConfig": {
+          "dataAugmentationOptions": [
+            {
+              "randomHorizontalFlip": null
+            },
+            {
+              "ssdRandomCrop": null
+            }
+          ],
+          "fineTuneCheckpoint": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz",
+          "fineTuneCheckpointType": "detection",
+          "batchSize": 1.0,
+          "optimizer": {
+            "rmsPropOptimizer": {
+              "learningRate": {
+                "exponentialDecayLearningRate": {
+                  "decayFactor": 0.949999988079071,
+                  "initialLearningRate": 0.004000000189989805,
+                  "decaySteps": 800720.0
+                }
+              },
+              "decay": 0.8999999761581421,
+              "epsilon": 1.0,
+              "momentumOptimizerValue": 0.8999999761581421
+            }
+          },
+          "numSteps": 2.0
+        },
+        "model": {
+          "ssd": {
+            "similarityCalculator": {
+              "iouSimilarity": null
+            },
+            "numClasses": 1.0,
+            "imageResizer": {
+              "fixedShapeResizer": {
+                "height": 300.0,
+                "width": 300.0
+              }
+            },
+            "anchorGenerator": {
+              "ssdAnchorGenerator": {
+                "maxScale": 0.949999988079071,
+                "aspectRatios": [
+                  1.0,
+                  2.0,
+                  0.5,
+                  3.0,
+                  0.33329999446868896
+                ],
+                "numLayers": 6.0,
+                "minScale": 0.20000000298023224
+              }
+            },
+            "normalizeLossByNumMatches": true,
+            "matcher": {
+              "argmaxMatcher": {
+                "unmatchedThreshold": 0.5,
+                "matchedThreshold": 0.5,
+                "forceMatchForEachRow": true,
+                "negativesLowerThanUnmatched": true,
+                "ignoreThresholds": false
+              }
+            },
+            "boxPredictor": {
+              "convolutionalBoxPredictor": {
+                "kernelSize": 1.0,
+                "maxDepth": 0.0,
+                "useDropout": false,
+                "convHyperparams": {
+                  "regularizer": {
+                    "l2Regularizer": {
+                      "weight": 3.9999998989515007e-05
+                    }
+                  },
+                  "batchNorm": {
+                    "epsilon": 0.0010000000474974513,
+                    "decay": 0.9997000098228455,
+                    "train": true,
+                    "scale": true,
+                    "center": true
+                  },
+                  "activation": "RELU_6",
+                  "initializer": {
+                    "truncatedNormalInitializer": {
+                      "stddev": 0.029999999329447746,
+                      "mean": 0.0
+                    }
+                  }
+                },
+                "minDepth": 0.0,
+                "numLayersBeforePredictor": 0.0,
+                "dropoutKeepProbability": 0.800000011920929,
+                "boxCodeSize": 4.0,
+                "applySigmoidToScores": false
+              }
+            },
+            "boxCoder": {
+              "fasterRcnnBoxCoder": {
+                "heightScale": 5.0,
+                "widthScale": 5.0,
+                "xScale": 10.0,
+                "yScale": 10.0
+              }
+            },
+            "loss": {
+              "classificationWeight": 1.0,
+              "localizationWeight": 1.0,
+              "localizationLoss": {
+                "weightedSmoothL1": null
+              },
+              "classificationLoss": {
+                "weightedSigmoid": null
+              },
+              "hardExampleMiner": {
+                "lossType": "CLASSIFICATION",
+                "numHardExamples": 3000.0,
+                "iouThreshold": 0.9900000095367432,
+                "minNegativesPerImage": 3.0,
+                "maxNegativesPerPositive": 3.0
+              }
+            },
+            "postProcessing": {
+              "batchNonMaxSuppression": {
+                "maxDetectionsPerClass": 100.0,
+                "iouThreshold": 0.6000000238418579,
+                "scoreThreshold": 9.99999993922529e-09,
+                "maxTotalDetections": 100.0
+              },
+              "scoreConverter": "SIGMOID"
+            },
+            "featureExtractor": {
+              "type": "ssd_mobilenet_v2",
+              "minDepth": 16.0,
+              "depthMultiplier": 1.0,
+              "convHyperparams": {
+                "regularizer": {
+                  "l2Regularizer": {
+                    "weight": 3.9999998989515007e-05
+                  }
+                },
+                "batchNorm": {
+                  "epsilon": 0.0010000000474974513,
+                  "decay": 0.9997000098228455,
+                  "train": true,
+                  "scale": true,
+                  "center": true
+                },
+                "activation": "RELU_6",
+                "initializer": {
+                  "truncatedNormalInitializer": {
+                    "stddev": 0.029999999329447746,
+                    "mean": 0.0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "evalInputReader": [
+          {
+            "numReaders": 1.0,
+            "shuffle": false,
+            "tfRecordInputReader": {
+              "inputPath": [
+                "PATH_TO_BE_CONFIGURED/mscoco_val.record-?????-of-00010"
+              ]
+            },
+            "labelMapPath": "PATH_TO_BE_CONFIGURED/mscoco_label_map.pbtxt"
+          }
+        ]
+      },
+      "modelUri": "/opt/data/rv/train/tiny-spacenet-experiment/model"
+    },
+    "backendType": "TF_OBJECT_DETECTION",
+    "pretrainedModelUri": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz"
+  }
+}

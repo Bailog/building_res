@@ -1,0 +1,84 @@
+{
+  "plugins": {},
+  "analyzeConfig": {
+    "scenes": [
+      {
+        "groundTruthLabelSource": {
+          "objectDetectionGeojsonSource": {
+            "uri": "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/buildings_AOI_2_Vegas_img205.geojson"
+          },
+          "sourceType": "OBJECT_DETECTION_GEOJSON"
+        },
+        "rasterSource": {
+          "geotiffFiles": {
+            "uris": [
+              "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/RGB-PanSharpen_AOI_2_Vegas_img205.tif"
+            ]
+          },
+          "transformers": [
+            {
+              "transformerType": "STATS_TRANSFORMER"
+            }
+          ],
+          "sourceType": "GEOTIFF_SOURCE"
+        },
+        "id": "train_scene"
+      },
+      {
+        "groundTruthLabelSource": {
+          "objectDetectionGeojsonSource": {
+            "uri": "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/buildings_AOI_2_Vegas_img25.geojson"
+          },
+          "sourceType": "OBJECT_DETECTION_GEOJSON"
+        },
+        "rasterSource": {
+          "geotiffFiles": {
+            "uris": [
+              "https://s3.amazonaws.com/azavea-research-public-data/raster-vision/examples/spacenet/RGB-PanSharpen_AOI_2_Vegas_img25.tif"
+            ]
+          },
+          "transformers": [
+            {
+              "transformerType": "STATS_TRANSFORMER"
+            }
+          ],
+          "sourceType": "GEOTIFF_SOURCE"
+        },
+        "id": "val_scene"
+      }
+    ],
+    "task": {
+      "debug": true,
+      "predictBatchSize": 10,
+      "taskType": "OBJECT_DETECTION",
+      "objectDetectionConfig": {
+        "chipSize": 300,
+        "classItems": [
+          {
+            "name": "building",
+            "color": "red",
+            "id": 1
+          }
+        ],
+        "predictOptions": {
+          "mergeThresh": 0.10000000149011612,
+          "scoreThresh": 0.5
+        },
+        "chipOptions": {
+          "windowMethod": "chip",
+          "negRatio": 1.0,
+          "ioaThresh": 0.800000011920929,
+          "labelBuffer": 0.0
+        }
+      }
+    },
+    "analyzers": [
+      {
+        "analyzerType": "STATS_ANALYZER",
+        "statsUri": "/opt/data/rv/analyze/tiny-spacenet-experiment/stats.json"
+      }
+    ]
+  },
+  "commandType": "ANALYZE",
+  "rootUri": "/opt/data/rv/analyze/tiny-spacenet-experiment"
+}
